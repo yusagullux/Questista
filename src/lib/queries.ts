@@ -51,9 +51,7 @@ export async function getFeedForQuestion(
 ): Promise<FeedAnswer[]> {
   const { data: answers } = await supabase
     .from("answers")
-    .select(
-      "*, profiles:profiles!user_id(id,username,display_name,avatar_url,confidence_level)",
-    )
+    .select("*")
     .eq("question_id", questionId)
     .eq("visibility", "public")
     .order("created_at", { ascending: false })
@@ -61,21 +59,33 @@ export async function getFeedForQuestion(
 
   if (!answers || answers.length === 0) return [];
 
-  const ids = answers.map((a: any) => a.id);
-  const { data: reactions } = await supabase
-    .from("reactions")
-    .select("answer_id, user_id")
-    .in("answer_id", ids);
+  // No direct FK answers→profiles (both reference auth.users), so a PostgREST
+  // join can't resolve the relationship. Fetch profiles + reactions separately
+  // and merge in JS (profiles are publicly readable).
+  const userIds = [...new Set((answers as any[]).map((a) => a.user_id))];
+  const ids = (answers as any[]).map((a) => a.id);
+
+  const [profilesRes, reactionsRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, username, display_name, avatar_url, confidence_level")
+      .in("id", userIds),
+    supabase.from("reactions").select("answer_id, user_id").in("answer_id", ids),
+  ]);
+
+  const profileMap = new Map<string, any>();
+  for (const p of (profilesRes.data ?? []) as any[]) profileMap.set(p.id, p);
 
   const counts = new Map<string, number>();
   const reacted = new Set<string>();
-  for (const r of (reactions ?? []) as any[]) {
+  for (const r of (reactionsRes.data ?? []) as any[]) {
     counts.set(r.answer_id, (counts.get(r.answer_id) ?? 0) + 1);
     if (r.user_id === viewerId) reacted.add(r.answer_id);
   }
 
   return (answers as any[]).map((a) => ({
     ...a,
+    profiles: profileMap.get(a.user_id) ?? null,
     reaction_count: counts.get(a.id) ?? 0,
     viewer_reacted: reacted.has(a.id),
   })) as FeedAnswer[];

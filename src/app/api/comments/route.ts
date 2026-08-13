@@ -21,16 +21,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const { data, error } = await supabase
+  const { data: comments, error } = await supabase
     .from("comments")
-    .select(
-      "*, author:profiles!user_id(username,display_name,avatar_url)",
-    )
+    .select("*")
     .eq("answer_id", answer_id)
     .order("created_at", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ comments: data ?? [] });
+  if (!comments || comments.length === 0) return NextResponse.json({ comments: [] });
+
+  // No direct FK comments→profiles (both reference auth.users), so fetch author
+  // profiles separately and merge (profiles are publicly readable).
+  const userIds = [...new Set((comments as any[]).map((c) => c.user_id))];
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id, username, display_name, avatar_url")
+    .in("id", userIds);
+  const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+
+  const out = (comments as any[]).map((c) => ({
+    ...c,
+    author: profileMap.get(c.user_id) ?? null,
+  }));
+
+  return NextResponse.json({ comments: out });
 }
 
 const Body = z.object({
