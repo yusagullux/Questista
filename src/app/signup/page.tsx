@@ -20,27 +20,45 @@ export default function SignupPage() {
   async function emailSignup(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setConfirm(null);
     if (username.trim().length < 3 || !/^[a-z0-9_]+$/i.test(username)) {
       setError("Username must be 3+ chars, letters/numbers/underscore only.");
       return;
     }
     setLoading("email");
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { username: username.trim(), full_name: username.trim() } },
-    });
-    setLoading(null);
-    if (error) {
-      setError(error.message);
-      return;
-    }
-    if (data.session) {
+    try {
+      // Create the account server-side (service-role) so it's confirmed
+      // immediately — no email round-trip, no rate-limit gate. Then sign in
+      // on the client to establish this user's own session.
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, username: username.trim() }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setLoading(null);
+        setError(json?.error ?? "Sign up failed. Please try again.");
+        return;
+      }
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setLoading(null);
+      if (signInError) {
+        // Account was created; tell them to log in manually.
+        setConfirm("Account created! Please log in.");
+        router.push("/login");
+        router.refresh();
+        return;
+      }
       router.push("/");
       router.refresh();
-    } else {
-      setConfirm("Check your email for a confirmation link to finish signing up.");
+    } catch {
+      setLoading(null);
+      setError("Network error. Please try again.");
     }
   }
 
