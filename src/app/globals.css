@@ -1,26 +1,139 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ────────────────────────────────────────────────────────────
+   Questista design tokens
+   Identity: "a quiet daily ritual". Editorial serif for the
+   question, calm UI sans, a violet primary with an amber spark.
+   ──────────────────────────────────────────────────────────── */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --background: #fbfaf7;          /* warm paper */
+  --surface: #ffffff;
+  --surface-2: #f4f2ee;
+  --border: #e7e3dc;
+  --foreground: #1c1a17;
+  --muted: #6b6660;
+  --subtle: #9b958d;
+
+  --primary: #5b3df5;             /* iris violet */
+  --primary-hover: #4a2de0;
+  --primary-soft: #efeaff;
+  --accent: #f5a524;              /* amber spark */
+  --accent-soft: #fff4e0;
+  --danger: #e23b3b;
+  --danger-soft: #fdeaea;
+  --success: #1f9d55;
+
+  --radius: 16px;
+  --radius-sm: 10px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #14121a;
+    --surface: #1d1a26;
+    --surface-2: #26222f;
+    --border: #322d3d;
+    --foreground: #f3f1ec;
+    --muted: #a9a3b4;
+    --subtle: #6f6a7d;
+
+    --primary: #9b7bff;
+    --primary-hover: #ad8eff;
+    --primary-soft: #2a2342;
+    --accent: #f5b34d;
+    --accent-soft: #332a16;
+    --danger: #f06868;
+    --danger-soft: #3a1f24;
+    --success: #4ade80;
   }
 }
 
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-success: var(--success);
+
+  --radius-default: var(--radius);
+  --radius-sm: var(--radius-sm);
+
+  --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-fraunces);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+/* Subtle paper grain on the page background */
+body {
+  background-image: radial-gradient(
+    circle at 20% 0%,
+    color-mix(in srgb, var(--primary) 5%, transparent),
+    transparent 45%
+  );
+  background-attachment: fixed;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+  }
+  60% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-pop {
+  animation: pop 0.3s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
