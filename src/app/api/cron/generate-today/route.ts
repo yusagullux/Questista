@@ -7,8 +7,10 @@ import { ensureTodayQuestion } from "@/lib/ai";
  * Protected by CRON_SECRET (Vercel sends it as `Authorization: Bearer <secret>`).
  */
 export async function GET(request: NextRequest) {
-  const auth = request.headers.get("authorization");
-  const secret = process.env.CRON_SECRET;
+  // Trim both sides — a trailing newline on a pasted secret is a common
+  // silent failure (the cron 401s forever with no error log).
+  const auth = request.headers.get("authorization")?.trim();
+  const secret = process.env.CRON_SECRET?.trim();
   if (!secret || auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
