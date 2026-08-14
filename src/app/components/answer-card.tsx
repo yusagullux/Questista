@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "./ui";
+import { HeartIcon } from "./icons";
 import { cn, timeAgo } from "@/lib/utils";
 import type { FeedAnswer } from "@/lib/types";
 import { Comments } from "./comments";
@@ -71,12 +72,13 @@ export function AnswerCard({
           onClick={toggleReact}
           disabled={busy}
           aria-pressed={reacted}
+          aria-label={reacted ? "Remove reaction" : "React to this answer"}
           className={cn(
-            "inline-flex items-center gap-1.5 text-sm transition-all",
+            "inline-flex items-center gap-1.5 text-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-[var(--radius-sm)]",
             reacted ? "text-primary" : "text-muted hover:text-foreground",
           )}
         >
-          <span className={cn("text-base", reacted && "animate-pop")}>{reacted ? "❤️" : "🤍"}</span>
+          <HeartIcon filled={reacted} className={cn("h-[18px] w-[18px]", reacted && "animate-pop")} />
           {count > 0 && <span>{count}</span>}
         </button>
 

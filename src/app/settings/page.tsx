@@ -1,35 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useId, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button, Card, Spinner } from "../components/ui";
+import { Button, Card, Spinner, Field, Input, Textarea, Skeleton } from "../components/ui";
+import { toast } from "../components/toaster";
 
 export default function SettingsPage() {
   const router = useRouter();
   const supabase = createClient();
+  const nameId = useId();
+  const usernameId = useId();
+  const bioId = useId();
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [username, setUsername] = useState("");
+  const [initialLoading, setInitialLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return router.push("/login");
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        if (!cancelled) router.push("/login?redirect=/settings");
+        return;
+      }
       const { data: p } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", data.user.id)
         .single();
+      if (cancelled) return;
       if (p) {
         setDisplayName(p.display_name ?? "");
         setBio(p.bio ?? "");
         setUsername(p.username ?? "");
       }
-    });
+      setInitialLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -37,21 +52,23 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaving(true);
     setErr(null);
-    setMsg(null);
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      setSaving(false);
+      return router.push("/login?redirect=/settings");
+    }
     const { error } = await supabase
       .from("profiles")
       .update({
         display_name: displayName.trim() || username,
         bio: bio.trim().slice(0, 280),
       })
-      .eq(
-        "id",
-        (await supabase.auth.getUser()).data.user!.id,
-      );
+      .eq("id", data.user.id);
     setSaving(false);
-    if (error) setErr(error.message);
-    else {
-      setMsg("Saved.");
+    if (error) {
+      setErr(error.message);
+    } else {
+      toast("Settings saved.", "success");
       router.refresh();
     }
   }
@@ -59,10 +76,13 @@ export default function SettingsPage() {
   async function resetPassword() {
     const { data } = await supabase.auth.getUser();
     if (!data.user?.email) return;
-    await supabase.auth.resetPasswordForEmail(data.user.email, {
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(data.user.email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/login`,
     });
-    setMsg("Password reset email sent.");
+    setResetting(false);
+    if (error) toast("Could not send reset email. Try again.", "danger");
+    else toast("Password reset email sent.", "success");
   }
 
   async function deleteAccount() {
@@ -72,10 +92,26 @@ export default function SettingsPage() {
     setDeleting(false);
     if (res.ok) {
       await supabase.auth.signOut();
-      router.push("/login");
+      toast("Account deleted.", "success");
+      router.push("/");
     } else {
-      setErr("Could not delete account. Try again.");
+      toast("Could not delete account. Try again.", "danger");
     }
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-8">
+        <Skeleton className="h-8 w-32 mb-6" />
+        <Card className="p-6 mb-4">
+          <div className="grid gap-3">
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-10 w-32 rounded-lg" />
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -84,42 +120,50 @@ export default function SettingsPage() {
 
       <Card className="p-6 mb-4">
         <h2 className="font-medium mb-4">Profile</h2>
-        <form onSubmit={save} className="grid gap-3">
-          <label className="text-sm text-muted">Username
-            <input
-              value={username}
-              disabled
-              className="mt-1 w-full rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm opacity-60"
-            />
-          </label>
-          <label className="text-sm text-muted">Display name
-            <input
+        <form onSubmit={save} className="grid gap-4">
+          <Field label="Username" id={usernameId} hint="Usernames can't be changed.">
+            <Input id={usernameId} value={username} disabled />
+          </Field>
+          <Field label="Display name" id={nameId}>
+            <Input
+              id={nameId}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              className="mt-1 w-full rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
+              maxLength={50}
+              placeholder="How you'll appear publicly"
+              disabled={saving}
             />
-          </label>
-          <label className="text-sm text-muted">Bio
-            <textarea
+          </Field>
+          <Field label="Bio" id={bioId} hint={`${bio.length}/280`}>
+            <Textarea
+              id={bioId}
               value={bio}
               maxLength={280}
               rows={3}
               onChange={(e) => setBio(e.target.value)}
-              className="mt-1 w-full resize-none rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
+              placeholder="A line or two about you (optional)"
+              disabled={saving}
             />
-          </label>
-          {err && <p className="text-sm text-danger">{err}</p>}
-          {msg && <p className="text-sm text-success">{msg}</p>}
-          <Button type="submit" disabled={saving}>
-            {saving ? <Spinner /> : null} Save changes
-          </Button>
+          </Field>
+          {err && (
+            <p className="text-sm text-danger" role="alert">
+              {err}
+            </p>
+          )}
+          <div>
+            <Button type="submit" loading={saving}>
+              Save changes
+            </Button>
+          </div>
         </form>
       </Card>
 
       <Card className="p-6 mb-4">
         <h2 className="font-medium mb-2">Security</h2>
         <p className="text-sm text-muted mb-3">Send yourself a password reset link.</p>
-        <Button variant="secondary" onClick={resetPassword}>Reset password</Button>
+        <Button variant="secondary" onClick={resetPassword} loading={resetting}>
+          Reset password
+        </Button>
       </Card>
 
       <Card className="p-6 border-danger/30">
@@ -127,8 +171,8 @@ export default function SettingsPage() {
         <p className="text-sm text-muted mb-3">
           Deleting your account removes your profile, answers, and history permanently.
         </p>
-        <Button variant="danger" onClick={deleteAccount} disabled={deleting}>
-          {deleting ? <Spinner /> : null} Delete account
+        <Button variant="danger" onClick={deleteAccount} loading={deleting}>
+          Delete account
         </Button>
       </Card>
     </div>

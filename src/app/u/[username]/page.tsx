@@ -1,10 +1,44 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile, getProfilePublicAnswers } from "@/lib/queries";
 import { Avatar, Badge, Card, EmptyState, LevelBadge } from "../../components/ui";
 import { shortDate } from "@/lib/utils";
 
 export const revalidate = 0;
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}): Promise<Metadata> {
+  const { username } = await params;
+  const supabase = await createClient();
+  const profile = await getProfile(supabase, username);
+  if (!profile) return { title: "Profile not found" };
+
+  const name = profile.display_name ?? profile.username;
+  const title = `${name} (@${profile.username})`;
+  const description =
+    profile.bio?.slice(0, 140) ??
+    `${name} answers one question a day on Questista. ${profile.public_answers_count} public perspectives so far.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `/u/${profile.username}` },
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      url: `${siteUrl}/u/${profile.username}`,
+    },
+    twitter: { card: "summary", title, description },
+  };
+}
 
 export default async function ProfilePage({
   params,
@@ -40,12 +74,12 @@ export default async function ProfilePage({
             {profile.bio && <p className="text-sm mt-2 text-foreground/80">{profile.bio}</p>}
           </div>
           {isOwner && (
-            <a
+            <Link
               href="/settings"
-              className="text-sm text-muted hover:text-foreground rounded-[var(--radius-sm)] border px-3 py-1.5"
+              className="text-sm text-muted hover:text-foreground rounded-[var(--radius-sm)] border border-border px-3 py-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               Edit
-            </a>
+            </Link>
           )}
         </div>
 

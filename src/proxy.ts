@@ -9,6 +9,13 @@ const PUBLIC_PATHS = [
   "/auth/callback",
 ];
 
+/* Metadata file conventions (robots, sitemap, manifest, icon, apple-icon,
+   opengraph-image, twitter-image) and their numbered variants are public
+   route handlers that must never be redirected to /login. Match the basename
+   at any depth so per-segment OG images work too. */
+const METADATA_RE =
+  /^\/(robots\.txt|sitemap\.xml|manifest(?:\.webmanifest)?|favicon\.ico|icon\d*|apple-icon\d*|opengraph-image\d*|twitter-image\d*)(\.[a-z]+)?(\/|$)/;
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -46,7 +53,8 @@ export async function proxy(request: NextRequest) {
   const isStatic =
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname === "/favicon.ico";
+    pathname === "/favicon.ico" ||
+    METADATA_RE.test(pathname);
 
   if (!user && !isPublic && !isStatic) {
     const url = request.nextUrl.clone();

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getTodayQuestion, getUserAnswer, getFeedForQuestion } from "@/lib/queries";
 import { AnswerComposer } from "./components/answer-composer";
@@ -40,6 +41,31 @@ export default async function Home() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Question",
+            headline: question.prompt,
+            text: question.prompt,
+            dateCreated: question.created_at,
+            author: { "@type": "Organization", name: "Questista" },
+            suggestedAnswer: feed
+              .filter((a) => a.content)
+              .slice(0, 10)
+              .map((a) => ({
+                "@type": "Answer",
+                text: a.content,
+                dateCreated: a.created_at,
+                author: {
+                  "@type": "Person",
+                  name: a.profiles?.display_name ?? a.profiles?.username ?? "Anonymous",
+                },
+              })),
+          }),
+        }}
+      />
       {/* Today's question — the central focus */}
       <section className="text-center mb-8 animate-fade-up">
         <Badge tone="primary" className="mb-4">
@@ -59,12 +85,18 @@ export default async function Home() {
               Create a free account to answer today's question and see how others think.
             </p>
             <div className="flex justify-center gap-2">
-              <a href="/signup" className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-primary text-white text-sm font-medium px-5 py-3 hover:bg-primary-hover transition-colors">
+              <Link
+                href="/signup"
+                className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-primary text-white text-sm font-medium px-5 py-3 hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
                 Get started
-              </a>
-              <a href="/login" className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] border text-sm font-medium px-5 py-3 hover:bg-surface-2 transition-colors">
+              </Link>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] border border-border text-sm font-medium px-5 py-3 hover:bg-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
                 Log in
-              </a>
+              </Link>
             </div>
           </div>
         ) : existing ? (

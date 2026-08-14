@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 const Body = z.object({
   question_id: z.string().uuid(),
@@ -52,21 +52,24 @@ export async function POST(request: NextRequest) {
   let result;
   if (existing) {
     // Update only — points already awarded on first insert. Keep counters honest
-    // if the user flips public<->private or answered<->skipped.
+    // if the user flips public<->private or answered<->skipped. The counter
+    // helper is a locked-down SECURITY DEFINER function (server-only), so call
+    // it through the service-role client.
+    const service = createServiceClient();
     const wasPublic = existing.visibility === "public";
     const isPublic = visibility === "public";
     const wasSkipped = existing.visibility === "skipped";
     const isSkipped = visibility === "skipped";
 
     if (wasSkipped !== isSkipped) {
-      await supabase.rpc("adjust_profile_count", {
+      await service.rpc("adjust_profile_count", {
         p_user: user.id,
         p_column: "answers_count",
         p_delta: isSkipped ? -1 : 1,
       });
     }
     if (wasPublic !== isPublic) {
-      await supabase.rpc("adjust_profile_count", {
+      await service.rpc("adjust_profile_count", {
         p_user: user.id,
         p_column: "public_answers_count",
         p_delta: isPublic ? 1 : -1,
