@@ -1,14 +1,18 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useId, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button, Spinner, Card } from "../components/ui";
+import { Button, Spinner, Card, Field, Input } from "../components/ui";
+import { GoogleIcon, GitHubIcon } from "../components/icons";
+import { Divider } from "../components/divider";
 
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const redirect = params.get("redirect") ?? "/";
+  const emailId = useId();
+  const pwdId = useId();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +41,18 @@ function LoginForm() {
     setLoading(provider);
     setError(null);
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({ provider, options: { redirectTo } });
+    // On success the browser is redirected away, so this line is a safety net
+    // for the failure case (provider disabled, misconfigured, network, etc.).
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo },
+    });
+    setLoading(null);
+    if (error) {
+      setError(
+        `Couldn't start ${provider === "google" ? "Google" : "GitHub"} sign-in. ${error.message}`,
+      );
+    }
   }
 
   return (
@@ -46,44 +61,64 @@ function LoginForm() {
       <p className="text-muted text-sm mb-6">Log in to answer today's question.</p>
 
       <div className="grid gap-2 mb-5">
-        <Button variant="secondary" onClick={() => oauth("google")} disabled={!!loading}>
-          {loading === "google" ? <Spinner /> : "G"} Continue with Google
+        <Button
+          variant="secondary"
+          onClick={() => oauth("google")}
+          disabled={!!loading}
+          aria-label="Continue with Google"
+        >
+          {loading === "google" ? <Spinner /> : <GoogleIcon className="h-5 w-5" />}
+          Continue with Google
         </Button>
-        <Button variant="secondary" onClick={() => oauth("github")} disabled={!!loading}>
-          {loading === "github" ? <Spinner /> : "GH"} Continue with GitHub
+        <Button
+          variant="secondary"
+          onClick={() => oauth("github")}
+          disabled={!!loading}
+          aria-label="Continue with GitHub"
+        >
+          {loading === "github" ? <Spinner /> : <GitHubIcon className="h-5 w-5" />}
+          Continue with GitHub
         </Button>
       </div>
 
-      <div className="relative my-4 text-center">
-        <span className="bg-surface px-3 text-xs text-subtle relative z-10">or with email</span>
-        <div className="absolute inset-y-1/2 left-0 right-0 border-t" />
-      </div>
+      <Divider label="or with email" />
 
-      <form onSubmit={emailLogin} className="grid gap-3">
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
-        />
-        <input
-          type="password"
-          required
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
-        />
-        {error && <p className="text-sm text-danger">{error}</p>}
-        <Button type="submit" disabled={!!loading}>
-          {loading === "email" ? <Spinner /> : null} Log in
+      <form onSubmit={emailLogin} className="grid gap-3" noValidate>
+        <Field label="Email" id={emailId} error={error}>
+          <Input
+            id={emailId}
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            invalid={!!error}
+            disabled={!!loading}
+          />
+        </Field>
+        <Field label="Password" id={pwdId}>
+          <Input
+            id={pwdId}
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="Your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={!!loading}
+          />
+        </Field>
+        <Button type="submit" loading={loading === "email"} disabled={!!loading} className="mt-1">
+          Log in
         </Button>
       </form>
 
       <p className="text-sm text-muted text-center mt-5">
-        New here? <a href="/signup" className="text-primary hover:underline">Create an account</a>
+        New here?{" "}
+        <a href="/signup" className="text-primary font-medium hover:underline">
+          Create an account
+        </a>
       </p>
     </Card>
   );

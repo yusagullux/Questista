@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button, Spinner, Card } from "../components/ui";
+import { Button, Card, Field, Input, Spinner } from "../components/ui";
+import { GoogleIcon, GitHubIcon } from "../components/icons";
+import { Divider } from "../components/divider";
 
 export default function SignupPage() {
   const router = useRouter();
+  const emailId = useId();
+  const pwdId = useId();
+  const userId = useId();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -66,7 +71,18 @@ export default function SignupPage() {
     setLoading(provider);
     setError(null);
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({ provider, options: { redirectTo } });
+    // On success the browser is redirected away, so this line is a safety net
+    // for the failure case (provider disabled, misconfigured, network, etc.).
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo },
+    });
+    setLoading(null);
+    if (error) {
+      setError(
+        `Couldn't start ${provider === "google" ? "Google" : "GitHub"} sign-in. ${error.message}`,
+      );
+    }
   }
 
   return (
@@ -76,57 +92,88 @@ export default function SignupPage() {
         <p className="text-muted text-sm mb-6">One question a day. Answer on your terms.</p>
 
         <div className="grid gap-2 mb-5">
-          <Button variant="secondary" onClick={() => oauth("google")} disabled={!!loading}>
-            {loading === "google" ? <Spinner /> : "G"} Continue with Google
+          <Button
+            variant="secondary"
+            onClick={() => oauth("google")}
+            disabled={!!loading}
+            aria-label="Continue with Google"
+          >
+            {loading === "google" ? <Spinner /> : <GoogleIcon className="h-5 w-5" />}
+            Continue with Google
           </Button>
-          <Button variant="secondary" onClick={() => oauth("github")} disabled={!!loading}>
-            {loading === "github" ? <Spinner /> : "GH"} Continue with GitHub
+          <Button
+            variant="secondary"
+            onClick={() => oauth("github")}
+            disabled={!!loading}
+            aria-label="Continue with GitHub"
+          >
+            {loading === "github" ? <Spinner /> : <GitHubIcon className="h-5 w-5" />}
+            Continue with GitHub
           </Button>
         </div>
 
-        <div className="relative my-4 text-center">
-          <span className="bg-surface px-3 text-xs text-subtle relative z-10">or with email</span>
-          <div className="absolute inset-y-1/2 left-0 right-0 border-t" />
-        </div>
+        <Divider label="or with email" />
 
-        <form onSubmit={emailSignup} className="grid gap-3">
-          <input
-            required
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60 lowercase"
-          />
-          <input
-            type="email"
-            required
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
-          />
-          <input
-            type="password"
-            required
-            minLength={8}
-            placeholder="Password (min 8 chars)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
-          />
-          {error && <p className="text-sm text-danger">{error}</p>}
+        <form onSubmit={emailSignup} className="grid gap-3" noValidate>
+          <Field label="Username" id={userId} hint="3+ characters, letters, numbers, or underscore.">
+            <Input
+              id={userId}
+              required
+              minLength={3}
+              placeholder="yourname"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              disabled={!!loading}
+            />
+          </Field>
+          <Field label="Email" id={emailId}>
+            <Input
+              id={emailId}
+              type="email"
+              required
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              disabled={!!loading}
+            />
+          </Field>
+          <Field label="Password" id={pwdId} hint="At least 8 characters.">
+            <Input
+              id={pwdId}
+              type="password"
+              required
+              minLength={8}
+              placeholder="Create a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              disabled={!!loading}
+            />
+          </Field>
+          {error && (
+            <p className="text-sm text-danger rounded-[var(--radius-sm)] bg-danger-soft px-3 py-2" role="alert">
+              {error}
+            </p>
+          )}
           {confirm && (
-            <p className="text-sm text-success rounded-[var(--radius-sm)] bg-emerald-50 dark:bg-emerald-500/10 px-3 py-2">
+            <p className="text-sm text-success rounded-[var(--radius-sm)] bg-success-soft px-3 py-2" role="status">
               {confirm}
             </p>
           )}
-          <Button type="submit" disabled={!!loading}>
-            {loading === "email" ? <Spinner /> : null} Create account
+          <Button type="submit" loading={loading === "email"} disabled={!!loading} className="mt-1">
+            Create account
           </Button>
         </form>
 
         <p className="text-sm text-muted text-center mt-5">
-          Already have an account? <a href="/login" className="text-primary hover:underline">Log in</a>
+          Already have an account?{" "}
+          <a href="/login" className="text-primary font-medium hover:underline">
+            Log in
+          </a>
         </p>
       </Card>
     </div>
