@@ -2,179 +2,20 @@
 > questista@0.1.0 dev
 > next dev
 
+⚠ Port 3000 is in use by process 4128, using available port 3002 instead.
 ▲ Next.js 16.3.0 (Turbopack)
-- Local:         http://localhost:3000
-- Network:       http://100.95.253.58:3000
+- Local:         http://localhost:3002
+- Network:       http://100.95.253.58:3002
 - Environments: .env.local
-✓ Ready in 971ms
-✓ Running next.config.ts took 1688ms
+✓ Ready in 424ms
+✓ Running next.config.ts took 33ms
+⨯ Another next dev server is already running.
 
- GET / 200 in 2.8s (next.js: 356ms, proxy.ts: 525ms, application-code: 1917ms)
- GET / 200 in 987ms (next.js: 6ms, proxy.ts: 11ms, application-code: 970ms)
- GET / 200 in 854ms (next.js: 8ms, proxy.ts: 13ms, application-code: 834ms)
-⨯ ./src/app/components/ui.tsx:2:10
-Error: You're importing a module that depends on `useEffect` into a React Server Component module. This API is only available in Client Components. To fix, mark the file (or its parent) with the `"use client"` directive.
-    Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-  [90m1 |[0m [36mimport[0m [33mLink[0m [36mfrom[0m [32m"next/link"[0m;
-[31m[1m>[0m [90m2 |[0m [36mimport[0m { useEffect, useState } [36mfrom[0m [32m"react"[0m;
-  [90m  |[0m          [31m[1m^^^^^^^^^[0m
-  [90m3 |[0m [36mimport[0m { cn } [36mfrom[0m [32m"@/lib/utils"[0m;
-  [90m4 |[0m
-  [90m5 |[0m [35m/* ───────────────────────────── Log[0mo ───────────────────────────── */
+- Local:        http://localhost:3001
+- PID:          24572
+- Dir:          C:\Users\yusag\Projects\Questista
+- Log:          .next\dev\logs\next-development.log
 
-Ecmascript file had an error
-
-Import traces:
-  #1 [Server Component]:
-    ./src/app/components/ui.tsx
-    ./src/app/page.tsx
-
-  #2 [Client Component Browser]:
-    ./src/app/components/ui.tsx [Client Component Browser]
-    ./src/app/components/answer-card.tsx [Client Component Browser]
-    ./src/app/components/answer-card.tsx [Server Component]
-    ./src/app/page.tsx [Server Component]
-
-  #3 [Client Component Browser]:
-    ./src/app/components/ui.tsx [Client Component Browser]
-    ./src/app/components/nav.tsx [Client Component Browser]
-    ./src/app/components/nav.tsx [Server Component]
-    ./src/app/layout.tsx [Server Component]
-
-  #4 [Client Component SSR]:
-    ./src/app/components/ui.tsx [Client Component SSR]
-    ./src/app/components/answer-card.tsx [Client Component SSR]
-    ./src/app/components/answer-card.tsx [Server Component]
-    ./src/app/page.tsx [Server Component]
-
-  #5 [Client Component SSR]:
-    ./src/app/components/ui.tsx [Client Component SSR]
-    ./src/app/components/nav.tsx [Client Component SSR]
-    ./src/app/components/nav.tsx [Server Component]
-    ./src/app/layout.tsx [Server Component]
-
-
-
-./src/app/components/ui.tsx:2:21
-Error: You're importing a module that depends on `useState` into a React Server Component module. This API is only available in Client Components. To fix, mark the file (or its parent) with the `"use client"` directive.
-    Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
-  [90m1 |[0m [36mimport[0m [33mLink[0m [36mfrom[0m [32m"next/link"[0m;
-[31m[1m>[0m [90m2 |[0m [36mimport[0m { useEffect, useState } [36mfrom[0m [32m"react"[0m;
-  [90m  |[0m                     [31m[1m^^^^^^^^[0m
-  [90m3 |[0m [36mimport[0m { cn } [36mfrom[0m [32m"@/lib/utils"[0m;
-  [90m4 |[0m
-  [90m5 |[0m [35m/* ───────────────────────────── Log[0mo ───────────────────────────── */
-
-Ecmascript file had an error
-
-Import traces:
-  #1 [Server Component]:
-    ./src/app/components/ui.tsx
-    ./src/app/page.tsx
-
-  #2 [Client Component Browser]:
-    ./src/app/components/ui.tsx [Client Component Browser]
-    ./src/app/components/answer-card.tsx [Client Component Browser]
-    ./src/app/components/answer-card.tsx [Server Component]
-    ./src/app/page.tsx [Server Component]
-
-  #3 [Client Component Browser]:
-    ./src/app/components/ui.tsx [Client Component Browser]
-    ./src/app/components/nav.tsx [Client Component Browser]
-    ./src/app/components/nav.tsx [Server Component]
-    ./src/app/layout.tsx [Server Component]
-
-  #4 [Client Component SSR]:
-    ./src/app/components/ui.tsx [Client Component SSR]
-    ./src/app/components/answer-card.tsx [Client Component SSR]
-    ./src/app/components/answer-card.tsx [Server Component]
-    ./src/app/page.tsx [Server Component]
-
-  #5 [Client Component SSR]:
-    ./src/app/components/ui.tsx [Client Component SSR]
-    ./src/app/components/nav.tsx [Client Component SSR]
-    ./src/app/components/nav.tsx [Server Component]
-    ./src/app/layout.tsx [Server Component]
-
-
- GET / 500 in 1685ms (next.js: 1437ms, proxy.ts: 9ms, application-code: 240ms)
- GET / 200 in 1055ms (next.js: 17ms, proxy.ts: 11ms, application-code: 1028ms)
- GET / 200 in 1336ms (next.js: 33ms, proxy.ts: 13ms, application-code: 1290ms)
- GET / 200 in 1536ms (next.js: 44ms, proxy.ts: 9ms, application-code: 1483ms)
- GET /login 200 in 160ms (next.js: 73ms, proxy.ts: 8ms, application-code: 79ms)
- GET /signup 200 in 155ms (next.js: 59ms, proxy.ts: 9ms, application-code: 87ms)
- GET /login 200 in 96ms (next.js: 7ms, proxy.ts: 10ms, application-code: 79ms)
- GET /login 200 in 81ms (next.js: 7ms, proxy.ts: 7ms, application-code: 67ms)
- GET / 200 in 1144ms (next.js: 6ms, proxy.ts: 7ms, application-code: 1131ms)
- POST /api/answers 401 in 583ms (next.js: 514ms, proxy.ts: 8ms, application-code: 61ms)
- GET /api/comments 400 in 261ms (next.js: 242ms, proxy.ts: 8ms, application-code: 11ms)
-✓ Compiled in 95ms
-✓ Compiled in 88ms
- GET /robots.txt 200 in 401ms (next.js: 234ms, proxy.ts: 146ms, application-code: 21ms)
- GET /sitemap.xml 200 in 712ms (next.js: 202ms, proxy.ts: 7ms, application-code: 503ms)
- GET /manifest.webmanifest 200 in 172ms (next.js: 156ms, proxy.ts: 7ms, application-code: 9ms)
- GET /icon 200 in 3.1s (next.js: 245ms, proxy.ts: 7ms, application-code: 2.8s)
- GET /apple-icon 200 in 302ms (next.js: 265ms, proxy.ts: 8ms, application-code: 30ms)
- GET /opengraph-image 200 in 322ms (next.js: 151ms, proxy.ts: 8ms, application-code: 162ms)
- GET / 200 in 1767ms (next.js: 170ms, proxy.ts: 8ms, application-code: 1588ms)
- GET / 200 in 869ms (next.js: 5ms, proxy.ts: 8ms, application-code: 855ms)
- GET / 200 in 776ms (next.js: 6ms, proxy.ts: 9ms, application-code: 760ms)
- GET /login?redirect=%2Fsettings 200 in 93ms (next.js: 23ms, proxy.ts: 7ms, application-code: 63ms)
- GET /u/yusaghy 200 in 2.1s (next.js: 1296ms, proxy.ts: 12ms, application-code: 786ms)
- GET /u/nosuchuser999 200 in 317ms (next.js: 19ms, proxy.ts: 7ms, application-code: 292ms)
- GET /sitemap.xml 200 in 165ms (next.js: 13ms, proxy.ts: 7ms, application-code: 145ms)
- GET /u/nosuchuser999 200 in 755ms (next.js: 33ms, proxy.ts: 8ms, application-code: 715ms)
- GET /u/nosuchuser999 200 in 369ms (next.js: 20ms, proxy.ts: 9ms, application-code: 339ms)
- GET /u/nosuchuser999 200 in 609ms (next.js: 20ms, proxy.ts: 8ms, application-code: 580ms)
- GET /u/nosuchuser999 200 in 276ms (next.js: 8ms, proxy.ts: 6ms, application-code: 261ms)
- GET /u/nosuchuser999 200 in 452ms (next.js: 50ms, proxy.ts: 9ms, application-code: 393ms)
- GET / 200 in 766ms (next.js: 18ms, proxy.ts: 8ms, application-code: 740ms)
- GET /u/nosuchuser999 200 in 523ms (next.js: 25ms, proxy.ts: 8ms, application-code: 489ms)
- GET /u/nosuchuser999 200 in 288ms (next.js: 17ms, proxy.ts: 8ms, application-code: 263ms)
- GET /u/nosuchuser999 200 in 395ms (next.js: 18ms, proxy.ts: 6ms, application-code: 371ms)
- GET /u/nosuchuser999 200 in 577ms (next.js: 21ms, proxy.ts: 7ms, application-code: 549ms)
- GET /u/nosuchuser999 200 in 662ms (next.js: 18ms, proxy.ts: 6ms, application-code: 637ms)
- GET /u/nosuchuser999 200 in 419ms (next.js: 17ms, proxy.ts: 7ms, application-code: 394ms)
- GET / 200 in 1423ms (next.js: 14ms, proxy.ts: 7ms, application-code: 1401ms)
- GET /login 200 in 80ms (next.js: 14ms, proxy.ts: 6ms, application-code: 60ms)
- GET /signup 200 in 102ms (next.js: 25ms, proxy.ts: 7ms, application-code: 71ms)
- GET /u/yusaghy 200 in 720ms (next.js: 30ms, proxy.ts: 7ms, application-code: 683ms)
- GET /u/nosuchuser999 200 in 198ms (next.js: 16ms, proxy.ts: 6ms, application-code: 177ms)
- GET /robots.txt 200 in 15ms (next.js: 7ms, proxy.ts: 4ms, application-code: 4ms)
- GET /sitemap.xml 200 in 121ms (next.js: 3ms, proxy.ts: 4ms, application-code: 115ms)
- GET /manifest.webmanifest 200 in 13ms (next.js: 4ms, proxy.ts: 5ms, application-code: 5ms)
- GET /icon 200 in 27ms (next.js: 3ms, proxy.ts: 5ms, application-code: 18ms)
- GET /apple-icon 200 in 18ms (next.js: 3ms, proxy.ts: 5ms, application-code: 10ms)
- GET /opengraph-image 200 in 153ms (next.js: 4ms, proxy.ts: 7ms, application-code: 142ms)
- GET /api/comments 400 in 93ms (next.js: 71ms, proxy.ts: 5ms, application-code: 18ms)
- POST /api/answers 401 in 65ms (next.js: 41ms, proxy.ts: 6ms, application-code: 18ms)
- GET /api/reactions 405 in 282ms (next.js: 269ms, proxy.ts: 5ms, application-code: 8ms)
- GET / 200 in 1063ms (next.js: 23ms, proxy.ts: 12ms, application-code: 1027ms)
- GET / 200 in 815ms (next.js: 5ms, proxy.ts: 7ms, application-code: 803ms)
- GET / 200 in 613ms (next.js: 5ms, proxy.ts: 7ms, application-code: 600ms)
-⨯ ./src/app/u/[username]/loading.tsx:1:1
-Error: Module not found: Can't resolve '../../../components/ui'
-[31m[1m>[0m [90m1 |[0m [36mimport[0m { [33mSkeleton[0m } [36mfrom[0m [32m"../../../components/ui"[0m;
-  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-  [90m2 |[0m
-  [90m3 |[0m [90m/* Profile-shaped skeleton — avatar card + stat row + answer list. */[0m
-  [90m4 |[0m [36mexport[0m [36mdefault[0m [36mfunction[0m [33mProfileLoading[0m() {
-
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
-⨯ ./src/app/u/[username]/loading.tsx:1:1
-Error: Module not found: Can't resolve '../../../components/ui'
-[31m[1m>[0m [90m1 |[0m [36mimport[0m { [33mSkeleton[0m } [36mfrom[0m [32m"../../../components/ui"[0m;
-  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
-  [90m2 |[0m
-  [90m3 |[0m [90m/* Profile-shaped skeleton — avatar card + stat row + answer list. */[0m
-  [90m4 |[0m [36mexport[0m [36mdefault[0m [36mfunction[0m [33mProfileLoading[0m() {
-
-
-
-https://nextjs.org/docs/messages/module-not-found
-
-
+You can access the existing server at http://localhost:3001,
+or run taskkill /PID 24572 /F to stop it and start a new one.
+[?25h
