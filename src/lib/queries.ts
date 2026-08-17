@@ -1,11 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { FeedAnswer, Question, Answer } from "./types";
+import { todayKey } from "./datetime";
 
-/** Today's question: the one scheduled for today, else the latest published. */
+/**
+ * Today's question: the one scheduled for the current Estonian day. If none
+ * exists yet (the cron hasn't run for the new day — a brief window right
+ * after local midnight), fall back to the most recent published question that
+ * is not in the future, so the page is never empty while today's is being
+ * generated. The hourly cron guarantees today's question appears within ~1h.
+ */
 export async function getTodayQuestion(
   supabase: SupabaseClient,
 ): Promise<Question | null> {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayKey();
   const { data: byDate } = await supabase
     .from("questions")
     .select("*")
@@ -15,10 +22,13 @@ export async function getTodayQuestion(
     .maybeSingle();
   if (byDate) return byDate as Question;
 
+  // Transient fallback: newest published question on or before today.
   const { data: latest } = await supabase
     .from("questions")
     .select("*")
     .eq("status", "published")
+    .lte("scheduled_date", today)
+    .order("scheduled_date", { ascending: false })
     .order("published_at", { ascending: false })
     .limit(1)
     .maybeSingle();

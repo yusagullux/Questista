@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { ensureTodayQuestion, generateQuestionBatch } from "@/lib/ai";
+import { ensureTodayQuestion, refreshDraftBuffer } from "@/lib/ai";
 
 /**
  * POST /api/questions/generate
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const mode = body?.mode === "batch" ? "batch" : "today";
+  const mode = body?.mode === "batch" || body?.mode === "buffer" ? "buffer" : "today";
 
   const service = createServiceClient();
 
@@ -38,14 +38,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: result.created, ...result });
   }
 
-  // batch mode
-  const count = Math.min(20, Math.max(1, Number(body?.count) || 5));
+  // buffer mode — top up the draft reserve so AI downtime never leaves a day empty.
   try {
-    const result = await generateQuestionBatch(service, count);
+    const result = await refreshDraftBuffer(service);
     return NextResponse.json({ ok: true, ...result });
   } catch (e: any) {
     return NextResponse.json(
-      { error: e?.message ?? "Generation failed. Check GEMINI_API_KEY." },
+      { error: e?.message ?? "Generation failed. Check GEMINI_API_KEY / model availability." },
       { status: 500 },
     );
   }
