@@ -57,6 +57,10 @@ function LoginForm() {
 
   return (
     <Card className="p-6 sm:p-8 animate-fade-up">
+      <div className="flex items-center justify-between border-b border-border pb-3 mb-5">
+        <span className="masthead">Questista</span>
+        <span className="masthead">Log in</span>
+      </div>
       <h1 className="font-display text-2xl font-semibold mb-1">Welcome back</h1>
       <p className="text-muted text-sm mb-6">Log in to answer today's question.</p>
 

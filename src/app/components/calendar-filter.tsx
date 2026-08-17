@@ -24,21 +24,25 @@ export function CalendarFilter({ items }: { items: any[] }) {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row gap-2 mb-4">
+      <div className="rule-label mb-4">
+        <span>{filtered.length} entr{filtered.length === 1 ? "y" : "ies"}</span>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-2 mb-5">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search your answers…"
-          className="flex-1 rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-2.5 text-sm outline-none focus:border-primary/60"
+          className="flex-1 field-input px-4 py-2.5 text-sm"
         />
-        <div className="flex gap-1 p-1 rounded-[var(--radius-sm)] bg-surface-2">
+        <div className="flex flex-wrap gap-1.5">
           {filters.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
+              aria-pressed={filter === f}
               className={
-                "px-3 py-1.5 rounded-[6px] text-sm capitalize transition-colors " +
-                (filter === f ? "bg-surface shadow-sm font-medium" : "text-muted hover:text-foreground")
+                "stamp text-[0.625rem] capitalize transition-colors " +
+                (filter === f ? "stamp--filled" : "stamp--ghost hover:border-border-strong")
               }
             >
               {f}

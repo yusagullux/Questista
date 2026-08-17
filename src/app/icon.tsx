@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-/* Generated favicon — the Questista "Q" mark on the brand gradient. */
+/* Generated favicon — stamp-red "Q" on paper. */
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
@@ -16,9 +16,10 @@ export default function Icon() {
           justifyContent: "center",
           fontSize: 22,
           fontWeight: 700,
-          color: "#fff",
-          background: "linear-gradient(135deg, #5b3df5, #f5a623)",
-          borderRadius: 8,
+          color: "#9c2b2b",
+          background: "#f5efe3",
+          border: "2px solid #9c2b2b",
+          borderRadius: 4,
         }}
       >
         Q

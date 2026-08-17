@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile, getProfilePublicAnswers } from "@/lib/queries";
 import { Avatar, Badge, Card, EmptyState, LevelBadge } from "../../components/ui";
-import { shortDate } from "@/lib/utils";
+import { almanacDate } from "@/lib/utils";
 
 export const revalidate = 0;
 
@@ -62,15 +62,20 @@ export default async function ProfilePage({
     .eq("user_id", profile.id);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
       <Card className="p-6 mb-6 animate-fade-up">
+        {/* ── Masthead: handle + join rule ── */}
+        <div className="flex items-center justify-between border-b border-border pb-3 mb-5">
+          <span className="masthead">@{profile.username}</span>
+          <span className="masthead">Profile</span>
+        </div>
         <div className="flex items-start gap-4">
           <Avatar name={profile.display_name ?? profile.username} src={profile.avatar_url} size={72} />
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-2xl font-semibold leading-tight">
               {profile.display_name ?? profile.username}
             </h1>
-            <p className="text-muted text-sm">@{profile.username}</p>
+            <p className="masthead text-[0.625rem] mt-1">@{profile.username}</p>
             {profile.bio && <p className="text-sm mt-2 text-foreground/80">{profile.bio}</p>}
           </div>
           {isOwner && (
@@ -83,12 +88,14 @@ export default async function ProfilePage({
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mt-6 text-center">
+        {/* ── Stats — mono numerals with small labels ── */}
+        <div className="grid grid-cols-3 gap-2 mt-6">
           <Stat label="Answered" value={profile.answers_count} />
           <Stat label="Public" value={profile.public_answers_count} />
           <Stat label="Points" value={profile.confidence_points} />
         </div>
 
+        {/* ── Level + achievements as stamps ── */}
         <div className="mt-4 flex flex-wrap gap-2">
           <LevelBadge level={profile.confidence_level} points={profile.confidence_points} />
           {achievements && achievements.length > 0 && (
@@ -101,7 +108,9 @@ export default async function ProfilePage({
         </div>
       </Card>
 
-      <h2 className="font-display text-lg font-semibold mb-3">Recent public answers</h2>
+      <div className="rule-label mb-4">
+        <span>Recent public answers</span>
+      </div>
       {answers.length === 0 ? (
         <EmptyState title="No public answers yet" icon="🤫">
           {isOwner ? "Your public answers will show up here." : "This person keeps their answers private."}
@@ -110,11 +119,17 @@ export default async function ProfilePage({
         <div className="space-y-3">
           {answers.map((a) => (
             <Card key={a.id} className="p-4 animate-fade-up">
-              <p className="text-xs text-subtle mb-1">{shortDate(a.question.scheduled_date ?? a.created_at)}</p>
-              <p className="font-display font-medium text-sm text-muted mb-2">
+              <div className="flex items-center justify-between mb-2">
+                <span className="stamp stamp--ghost">
+                  {almanacDate(a.question.scheduled_date ?? a.created_at).split(" ").slice(0, 2).join(" ")}
+                </span>
+              </div>
+              <p className="font-display font-medium text-sm text-muted mb-2 leading-snug">
                 {a.question.prompt}
               </p>
-              <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{a.content}</p>
+              <p className="prose-entry whitespace-pre-wrap text-foreground border-t border-border pt-2.5">
+                {a.content}
+              </p>
             </Card>
           ))}
         </div>
@@ -125,9 +140,9 @@ export default async function ProfilePage({
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-[var(--radius-sm)] bg-surface-2 py-3">
-      <div className="font-display text-xl font-semibold">{value}</div>
-      <div className="text-xs text-subtle">{label}</div>
+    <div className="rounded-[var(--radius-sm)] border border-border bg-surface-2 py-3 text-center">
+      <div className="font-mono text-2xl font-semibold tabular-nums text-foreground">{value}</div>
+      <div className="masthead text-[0.625rem] mt-0.5">{label}</div>
     </div>
   );
 }

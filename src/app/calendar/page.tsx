@@ -22,26 +22,32 @@ export default async function CalendarPage() {
   const nl = nextLevel(p.confidence_points);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6 animate-fade-up">
-        <h1 className="font-display text-2xl font-semibold mb-1">Your calendar</h1>
-        <p className="text-muted text-sm">A quiet record of the questions you've met.</p>
+    <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
+      <div className="mb-6 animate-stamp-in">
+        <div className="flex items-center justify-between border-y border-border py-2 mb-5">
+          <span className="masthead">Your calendar</span>
+          <span className="masthead">{p.answers_count} answered</span>
+        </div>
+        <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight">
+          The record so far
+        </h1>
+        <p className="text-muted text-sm mt-2">A quiet log of the questions you've met.</p>
       </div>
 
       <Card className="p-5 mb-6">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <LevelBadge level={p.confidence_level} points={p.confidence_points} />
-          <span className="text-xs text-subtle">{p.answers_count} answered</span>
         </div>
         {nl && (
           <div>
-            <div className="flex justify-between text-xs text-muted mb-1">
-              <span>Next: {nl.name}</span>
+            <div className="flex justify-between masthead text-[0.625rem] mb-1.5">
+              <span>Next · {nl.name}</span>
               <span>{nl.pointsToNext} pts to go</span>
             </div>
-            <div className="h-2 rounded-full bg-surface-2 overflow-hidden">
+            {/* Ink-fill progress: stamp-red → ochre */}
+            <div className="h-2 rounded-full bg-surface-2 overflow-hidden border border-border">
               <div
-                className="h-full rounded-full transition-all"
+                className="h-full transition-all"
                 style={{ width: `${Math.round(nl.progress * 100)}%`, background: "linear-gradient(90deg, var(--primary), var(--accent))" }}
               />
             </div>

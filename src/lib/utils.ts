@@ -36,6 +36,31 @@ export function formatDate(dateStr: string) {
   });
 }
 
+/* Almanac masthead date: "MON 17 AUG 2026" — the mono voice of the
+   dated masthead and stamp tiles. App-timezone-aware (Europe/Tallinn). */
+export function almanacDate(dateStr: string | Date): string {
+  const d = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
+  return d
+    .toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: "Europe/Tallinn",
+    })
+    .toUpperCase()
+    .replace(/,/g, "");
+}
+
+/* Day-of-year edition number — deterministic, no new data needed.
+   The "front page" reads "NO. 229" for the 229th day of the year. */
+export function editionNumber(dateStr: string | Date): number {
+  const d = typeof dateStr === "string" ? new Date(dateStr) : dateStr;
+  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
+  const diff = d.getTime() - start;
+  return Math.floor(diff / 86_400_000);
+}
+
 export function shortDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("en-US", {
     month: "short",

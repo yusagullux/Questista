@@ -88,6 +88,10 @@ export default function SignupPage() {
   return (
     <div className="mx-auto max-w-sm px-4 py-16">
       <Card className="p-6 sm:p-8 animate-fade-up">
+        <div className="flex items-center justify-between border-b border-border pb-3 mb-5">
+          <span className="masthead">Questista</span>
+          <span className="masthead">Join</span>
+        </div>
         <h1 className="font-display text-2xl font-semibold mb-1">Join Questista</h1>
         <p className="text-muted text-sm mb-6">One question a day. Answer on your terms.</p>
 

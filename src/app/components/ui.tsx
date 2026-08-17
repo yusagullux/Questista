@@ -11,8 +11,12 @@ export function Logo({ className }: { className?: string }) {
       aria-label="Questista — home"
     >
       <span
-        className="grid place-items-center h-8 w-8 rounded-[10px] text-white font-bold shadow-sm transition-transform duration-300 group-hover:-rotate-6"
-        style={{ background: "linear-gradient(135deg, var(--primary), var(--accent))" }}
+        className="grid place-items-center h-8 w-8 rounded-[var(--radius-sm)] font-display font-bold text-[1.05rem] leading-none border-[1.5px] transition-transform duration-300 group-hover:-rotate-6"
+        style={{
+          background: "var(--primary)",
+          color: "var(--primary-contrast)",
+          borderColor: "var(--primary)",
+        }}
         aria-hidden
       >
         Q
@@ -37,7 +41,9 @@ export function Container({
   return <div className={cn("mx-auto w-full px-4", max, className)}>{children}</div>;
 }
 
-/* ───────────────────────────── Card ───────────────────────────── */
+/* ───────────────────────────── Card ─────────────────────────────
+   Almanac card: hairline border, paper surface, minimal shadow.
+   Depth comes from the rule, not a drop shadow. */
 
 export function Card({
   className,
@@ -51,8 +57,8 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-[var(--radius)] border bg-surface shadow-sm",
-        interactive && "transition-shadow hover:shadow-md",
+        "rounded-[var(--radius)] border bg-surface",
+        interactive && "transition-colors hover:border-border-strong",
         className,
       )}
     >
@@ -90,11 +96,11 @@ export function Button({
     lg: "text-base px-5 py-3",
   };
   const variants = {
-    primary: "bg-primary text-white hover:bg-primary-hover active:brightness-95 shadow-sm",
+    primary: "bg-primary text-primary-contrast hover:bg-primary-hover active:brightness-95",
     secondary: "bg-surface-2 text-foreground hover:bg-surface-3 border border-border",
     outline: "bg-transparent text-foreground border border-border-strong hover:bg-surface-2",
     ghost: "text-muted hover:text-foreground hover:bg-surface-2",
-    danger: "bg-danger text-white hover:brightness-95 active:brightness-90 shadow-sm",
+    danger: "bg-danger text-white hover:brightness-95 active:brightness-90",
   };
   const cls = cn(base, sizes[size], variants[variant], className);
 
@@ -148,7 +154,8 @@ export function IconButton({
   );
 }
 
-/* ───────────────────────────── Badge ───────────────────────────── */
+/* ───────────────────────────── Badge ─────────────────────────────
+   Rendered as a rubber-stamp mark: near-square, mono, hairline border. */
 
 export function Badge({
   children,
@@ -157,24 +164,21 @@ export function Badge({
   title,
 }: {
   children: React.ReactNode;
-  tone?: "neutral" | "primary" | "accent" | "success" | "danger";
+  tone?: "neutral" | "primary" | "accent" | "slate" | "success" | "danger";
   className?: string;
   title?: string;
 }) {
   const tones = {
-    neutral: "bg-surface-2 text-muted",
-    primary: "bg-primary-soft text-primary",
-    accent: "bg-accent-soft text-accent",
-    success: "bg-success-soft text-success",
-    danger: "bg-danger-soft text-danger",
+    neutral: "stamp--ghost",
+    primary: "",
+    accent: "stamp--ochre",
+    slate: "stamp--slate",
+    success: "stamp--slate",
+    danger: "",
   };
   return (
     <span
-      className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
-        tones[tone],
-        className,
-      )}
+      className={cn("stamp", tones[tone], !tones[tone] && "stamp--filled", className)}
       title={title}
     >
       {children}
@@ -201,7 +205,7 @@ export function Avatar({
   return (
     <span
       className={cn(
-        "inline-grid place-items-center rounded-full overflow-hidden bg-surface-2 text-muted font-semibold select-none shrink-0",
+        "inline-grid place-items-center rounded-full overflow-hidden bg-surface-2 text-muted font-semibold select-none shrink-0 ring-1 ring-border",
         className,
       )}
       style={{ width: size, height: size, fontSize: size * 0.38 }}
@@ -256,11 +260,11 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-14 px-6 animate-fade-up",
+        "flex flex-col items-center justify-center text-center py-14 px-6 animate-fade-up border border-dashed border-border rounded-[var(--radius)]",
         className,
       )}
     >
-      <div className="mb-4 text-4xl opacity-80" aria-hidden>
+      <div className="mb-4 text-3xl opacity-70" aria-hidden>
         {icon ?? "✦"}
       </div>
       <h3 className="font-display text-xl font-semibold mb-1">{title}</h3>

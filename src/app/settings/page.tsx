@@ -3,7 +3,7 @@
 import { useId, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button, Card, Spinner, Field, Input, Textarea, Skeleton } from "../components/ui";
+import { Button, Card, Field, Input, Textarea, Skeleton } from "../components/ui";
 import { toast } from "../components/toaster";
 
 export default function SettingsPage() {
@@ -101,13 +101,13 @@ export default function SettingsPage() {
 
   if (initialLoading) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-8">
+      <div className="mx-auto max-w-lg px-4 py-8 sm:py-12">
         <Skeleton className="h-8 w-32 mb-6" />
         <Card className="p-6 mb-4">
           <div className="grid gap-3">
-            <Skeleton className="h-20 w-full rounded-lg" />
-            <Skeleton className="h-20 w-full rounded-lg" />
-            <Skeleton className="h-10 w-32 rounded-lg" />
+            <Skeleton className="h-20 w-full rounded-[var(--radius-sm)]" />
+            <Skeleton className="h-20 w-full rounded-[var(--radius-sm)]" />
+            <Skeleton className="h-10 w-32 rounded-[var(--radius-sm)]" />
           </div>
         </Card>
       </div>
@@ -115,11 +115,15 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8">
+    <div className="mx-auto max-w-lg px-4 py-8 sm:py-12">
+      <div className="flex items-center justify-between border-y border-border py-2 mb-6">
+        <span className="masthead">Questista</span>
+        <span className="masthead">Settings</span>
+      </div>
       <h1 className="font-display text-2xl font-semibold mb-6">Settings</h1>
 
       <Card className="p-6 mb-4">
-        <h2 className="font-medium mb-4">Profile</h2>
+        <p className="masthead mb-4">Profile</p>
         <form onSubmit={save} className="grid gap-4">
           <Field label="Username" id={usernameId} hint="Usernames can't be changed.">
             <Input id={usernameId} value={username} disabled />
@@ -159,15 +163,15 @@ export default function SettingsPage() {
       </Card>
 
       <Card className="p-6 mb-4">
-        <h2 className="font-medium mb-2">Security</h2>
+        <p className="masthead mb-2">Security</p>
         <p className="text-sm text-muted mb-3">Send yourself a password reset link.</p>
         <Button variant="secondary" onClick={resetPassword} loading={resetting}>
           Reset password
         </Button>
       </Card>
 
-      <Card className="p-6 border-danger/30">
-        <h2 className="font-medium mb-2 text-danger">Danger zone</h2>
+      <Card className="p-6 border-danger/40">
+        <p className="masthead mb-2 text-danger">Danger zone</p>
         <p className="text-sm text-muted mb-3">
           Deleting your account removes your profile, answers, and history permanently.
         </p>

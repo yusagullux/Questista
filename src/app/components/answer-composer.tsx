@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button, Spinner } from "./ui";
+import { LockIcon, GlobeIcon, CheckIcon } from "./icons";
 import { cn } from "@/lib/utils";
 import type { Question } from "@/lib/types";
 
@@ -44,23 +45,19 @@ export function AnswerComposer({
   }
 
   if (done) {
+    const map = {
+      public: { title: "Your perspective is live", text: "It's now part of today's community answers.", stamp: "Posted" },
+      private: { title: "Saved to your calendar", text: "Only you can see this answer.", stamp: "Private" },
+      skipped: { title: "Skipped for today", text: "No pressure. Come back tomorrow.", stamp: "Skipped" },
+    } as const;
+    const s = map[done];
     return (
-      <div className="rounded-[var(--radius)] border bg-surface p-8 text-center animate-pop">
-        <div className="text-3xl mb-2">{done === "public" ? "🌎" : done === "private" ? "🔒" : "✓"}</div>
-        <h3 className="font-display text-xl font-semibold mb-1">
-          {done === "public"
-            ? "Your perspective is live"
-            : done === "private"
-              ? "Saved to your calendar"
-              : "Skipped for today"}
-        </h3>
-        <p className="text-muted text-sm mb-5">
-          {done === "public"
-            ? "It's now part of today's community answers."
-            : done === "private"
-              ? "Only you can see this answer."
-              : "No pressure. Come back tomorrow."}
-        </p>
+      <div className="rounded-[var(--radius)] border border-border bg-surface p-8 text-center animate-pop">
+        <div className="flex justify-center mb-3">
+          <span className="stamp stamp--filled text-base px-3 py-1">{s.stamp}</span>
+        </div>
+        <h3 className="font-display text-xl font-semibold mb-1">{s.title}</h3>
+        <p className="text-muted text-sm mb-5">{s.text}</p>
         <Button as="a" href="/" variant="secondary" size="sm">
           Back to today
         </Button>
@@ -71,10 +68,8 @@ export function AnswerComposer({
   const points = previewPoints(visibility, content.trim().length);
 
   return (
-    <div className="rounded-[var(--radius)] border bg-surface p-5 sm:p-6 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-subtle mb-3">
-        Your answer
-      </p>
+    <div className="rounded-[var(--radius)] border border-border bg-surface p-5 sm:p-6">
+      <p className="masthead mb-3">Your entry</p>
 
       <textarea
         value={content}
@@ -83,26 +78,26 @@ export function AnswerComposer({
         rows={4}
         maxLength={1000}
         disabled={submitting}
-        className="w-full resize-none rounded-[var(--radius-sm)] border bg-surface-2 px-4 py-3 text-base outline-none focus:border-primary/60 focus:bg-surface transition placeholder:text-subtle"
+        className="w-full resize-none rounded-[var(--radius-sm)] border border-border bg-surface-2 px-4 py-3 text-base outline-none focus:border-primary/60 focus:bg-surface transition placeholder:text-subtle font-display"
       />
       <div className="flex justify-between items-center mt-1.5 text-xs text-subtle">
-        <span>{content.length}/1000</span>
+        <span className="masthead">{content.length}/1000</span>
       </div>
 
-      {/* Visibility toggle — made deliberately loud */}
+      {/* Visibility — two stamp-style toggles */}
       <div className="mt-4">
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-[var(--radius-sm)] bg-surface-2">
+        <div className="grid grid-cols-2 gap-2">
           <VisibilityOption
             active={!isPublic}
             onClick={() => setVisibility("private")}
-            icon="🔒"
+            icon={<LockIcon className="h-4 w-4" />}
             label="Private"
             desc="Only you can see it"
           />
           <VisibilityOption
             active={isPublic}
             onClick={() => setVisibility("public")}
-            icon="🌎"
+            icon={<GlobeIcon className="h-4 w-4" />}
             label="Public"
             desc="Anyone can read it"
           />
@@ -111,7 +106,7 @@ export function AnswerComposer({
         {isPublic && (
           <p
             role="alert"
-            className="mt-3 flex items-start gap-2 rounded-[var(--radius-sm)] border border-accent/40 bg-accent-soft px-3 py-2.5 text-sm text-foreground animate-fade-up"
+            className="mt-3 flex items-start gap-2 rounded-[var(--radius-sm)] border border-primary/40 bg-primary-soft px-3 py-2.5 text-sm text-foreground animate-fade-up"
           >
             <span aria-hidden>⚠️</span>
             <span>
@@ -138,7 +133,7 @@ export function AnswerComposer({
       </div>
 
       <p className="mt-3 text-center text-xs text-subtle">
-        {visibility === "skipped" ? "Skipping is fine — no streaks to lose." : `+${points} Confidence Points for showing up today`}
+        {visibility === "skipped" ? "Skipping is fine — no streaks to lose." : `+${points} confidence points for showing up today`}
       </p>
     </div>
   );
@@ -153,7 +148,7 @@ function VisibilityOption({
 }: {
   active: boolean;
   onClick: () => void;
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   desc: string;
 }) {
@@ -163,11 +158,15 @@ function VisibilityOption({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "flex items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2.5 text-left transition-all",
-        active ? "bg-surface shadow-sm ring-2 ring-primary/50" : "hover:bg-surface/60",
+        "flex items-center gap-3 rounded-[var(--radius-sm)] border px-3 py-2.5 text-left transition-all",
+        active
+          ? "border-primary bg-primary-soft text-foreground"
+          : "border-border bg-surface-2 text-muted hover:bg-surface-2/60",
       )}
     >
-      <span className="text-xl" aria-hidden>{icon}</span>
+      <span className={cn("shrink-0", active ? "text-primary" : "text-subtle")} aria-hidden>
+        {icon}
+      </span>
       <span className="leading-tight">
         <span className={cn("block text-sm font-medium", active ? "text-foreground" : "text-muted")}>
           {label}

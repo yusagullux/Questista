@@ -2,13 +2,10 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t bg-surface/50">
-      <div className="mx-auto max-w-2xl px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-subtle">
-        <p>
-          One question a day.{" "}
-          <span className="text-muted">Many perspectives.</span>
-        </p>
-        <nav className="flex items-center gap-4" aria-label="Footer">
+    <footer className="mt-auto border-t border-border bg-surface/40">
+      <div className="mx-auto max-w-2xl px-4 py-7 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p className="masthead">One question a day · Many perspectives</p>
+        <nav className="flex items-center gap-4 text-sm text-subtle" aria-label="Footer">
           <Link href="/" className="hover:text-foreground transition-colors">
             Today
           </Link>

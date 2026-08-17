@@ -5,7 +5,7 @@ export default function ProfileLoading() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8" aria-busy="true" aria-live="polite">
       <span className="sr-only">Loading profile…</span>
-      <div className="rounded-[var(--radius)] border bg-surface p-6 mb-6 shadow-sm">
+      <div className="rounded-[var(--radius)] border border-border bg-surface p-6 mb-6">
         <div className="flex items-start gap-4">
           <Skeleton className="h-[72px] w-[72px] rounded-full" />
           <div className="flex-1 space-y-2">

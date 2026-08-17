@@ -15,7 +15,7 @@ import {
   CalendarIcon,
   SparkIcon,
 } from "./icons";
-import { cn } from "@/lib/utils";
+import { cn, almanacDate, editionNumber } from "@/lib/utils";
 
 type NavUser = {
   id: string;
@@ -36,13 +36,17 @@ export function Nav() {
   const [loading, setLoading] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Dated masthead string — computed once via a useState initializer. This
+  // runs during the server render and its value is reused on hydration, so
+  // there is no hydration mismatch (the client never re-runs the initializer)
+  // and no setState-in-effect. Timezone is pinned to Tallinn; server-time is
+  // the correct "edition" date for a daily product.
+  const [dateline] = useState<string>(
+    () => `${almanacDate(new Date())} · NO. ${editionNumber(new Date())}`,
+  );
 
-  // Close menus on navigation
-  useEffect(() => {
-    setMobileOpen(false);
-    setMenuOpen(false);
-  }, [pathname]);
-
+  // Mobile menu closes on link click (see onClick handlers below), and the
+  // user dropdown closes on outside-click/Esc — no setState-in-effect needed.
   useEffect(() => {
     const supabase = createClient();
     let active = true;
@@ -100,12 +104,12 @@ export function Nav() {
     exact ? pathname === href : pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b">
+    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
       <nav className="mx-auto max-w-2xl px-4 h-14 flex items-center justify-between gap-2">
         <Logo />
 
-        {/* Desktop links */}
-        <div className="hidden sm:flex items-center gap-0.5">
+        {/* Desktop links — active shown with a stamp-red underline rule */}
+        <div className="hidden sm:flex items-center gap-1">
           {allLinks.map((l) => {
             const Icon = l.icon;
             const active = isActive(l.href, "exact" in l && l.exact);
@@ -115,21 +119,30 @@ export function Nav() {
                 href={l.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "inline-flex items-center gap-1.5 text-sm px-3 py-2 rounded-[var(--radius-sm)] transition-colors",
+                  "inline-flex items-center gap-1.5 text-sm px-3 py-2 transition-colors relative",
                   active
-                    ? "text-foreground bg-surface-2 font-medium"
-                    : "text-muted hover:text-foreground hover:bg-surface-2/60",
+                    ? "text-foreground font-medium"
+                    : "text-muted hover:text-foreground",
                 )}
               >
                 <Icon className="h-4 w-4" />
                 {l.label}
+                {active && (
+                  <span
+                    className="absolute left-3 right-3 -bottom-px h-0.5 bg-primary"
+                    aria-hidden
+                  />
+                )}
               </Link>
             );
           })}
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <span className="masthead hidden md:inline mr-1" aria-hidden>
+            {dateline}
+          </span>
           {loading ? (
             <span className="w-8" aria-hidden />
           ) : user ? (
@@ -143,7 +156,7 @@ export function Nav() {
             <div className="flex items-center gap-1">
               <Link
                 href="/login"
-                className="text-sm text-muted hover:text-foreground px-3 py-2 rounded-[var(--radius-sm)] transition-colors"
+                className="text-sm text-muted hover:text-foreground px-3 py-2 transition-colors"
               >
                 Log in
               </Link>
@@ -164,9 +177,14 @@ export function Nav() {
         </div>
       </nav>
 
-      {/* Mobile panel */}
+      {/* Mobile panel — hairline, masthead date at the top */}
       {mobileOpen && (
-        <div className="sm:hidden border-t bg-background animate-fade-up">
+        <div className="sm:hidden border-t border-border bg-background animate-fade-up">
+          <div className="mx-auto max-w-2xl px-4 pt-3">
+            <span className="masthead" aria-hidden>
+              {dateline}
+            </span>
+          </div>
           <div className="mx-auto max-w-2xl px-4 py-3 flex flex-col gap-1">
             {allLinks.map((l) => {
               const Icon = l.icon;
@@ -175,6 +193,7 @@ export function Nav() {
                 <Link
                   key={l.href}
                   href={l.href}
+                  onClick={() => setMobileOpen(false)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "inline-flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-[var(--radius-sm)] transition-colors",
@@ -191,6 +210,7 @@ export function Nav() {
             {!user && (
               <Link
                 href="/login"
+                onClick={() => setMobileOpen(false)}
                 className="inline-flex items-center gap-2.5 text-sm px-3 py-2.5 rounded-[var(--radius-sm)] text-muted hover:text-foreground hover:bg-surface-2/60"
               >
                 <UserIcon className="h-4 w-4" />
@@ -246,7 +266,6 @@ function UserMenu({
           name={user.display_name ?? user.username}
           src={user.avatar_url}
           size={32}
-          className="ring-1 ring-border"
         />
         <ChevronDownIcon
           className={cn("h-4 w-4 text-muted transition-transform", open && "rotate-180")}
@@ -256,9 +275,9 @@ function UserMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-56 rounded-[var(--radius)] border bg-surface shadow-lg py-1.5 animate-fade-up"
+          className="absolute right-0 mt-2 w-56 rounded-[var(--radius)] border border-border bg-surface shadow-md py-1.5 animate-fade-up"
         >
-          <div className="px-3 py-2 border-b">
+          <div className="px-3 py-2 border-b border-border">
             <p className="text-sm font-medium truncate">
               {user.display_name ?? user.username}
             </p>
@@ -275,7 +294,7 @@ function UserMenu({
               Admin
             </MenuLink>
           )}
-          <div className="my-1 border-t" />
+          <div className="my-1 border-t border-border" />
           <form action="/api/auth/signout" method="post">
             <button
               type="submit"

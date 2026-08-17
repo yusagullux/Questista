@@ -44,10 +44,14 @@ export function AnswerCard({
   const isOwn = author?.username === viewerUsername;
 
   return (
-    <article id={`answer-${answer.id}`} className="rounded-[var(--radius)] border bg-surface p-5 shadow-sm animate-fade-up">
-      <header className="flex items-center gap-3 mb-3">
-        <Link href={author ? `/u/${author.username}` : "#"}>
-          <Avatar name={author?.display_name ?? author?.username} src={author?.avatar_url} size={40} />
+    <article
+      id={`answer-${answer.id}`}
+      className="rounded-[var(--radius)] border border-border bg-surface p-5 animate-fade-up"
+    >
+      {/* ── Hairline header: author + dateline + level stamp ── */}
+      <header className="flex items-center gap-3 pb-3 border-b border-border">
+        <Link href={author ? `/u/${author.username}` : "#"} className="shrink-0">
+          <Avatar name={author?.display_name ?? author?.username} src={author?.avatar_url} size={36} />
         </Link>
         <div className="min-w-0">
           <Link
@@ -56,18 +60,22 @@ export function AnswerCard({
           >
             @{author?.username ?? "unknown"}
           </Link>
-          <div className="text-xs text-subtle">{timeAgo(answer.created_at)}</div>
+          <div className="masthead text-[0.625rem] mt-0.5">{timeAgo(answer.created_at)}</div>
         </div>
         {author?.confidence_level && (
-          <span className="ml-auto text-xs text-accent">◆ {author.confidence_level}</span>
+          <span className="stamp stamp--ochre ml-auto">
+            <span aria-hidden>◆</span> {author.confidence_level}
+          </span>
         )}
       </header>
 
-      <p className="whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">
+      {/* ── The entry — printed in Fraunces, read like a page ── */}
+      <p className="prose-entry whitespace-pre-wrap text-foreground py-3.5">
         {answer.content}
       </p>
 
-      <footer className="mt-4 flex items-center gap-4">
+      {/* ── Hairline footer: reaction + share + report ── */}
+      <footer className="mt-1 pt-3 border-t border-border flex items-center gap-4">
         <button
           onClick={toggleReact}
           disabled={busy}
@@ -79,7 +87,7 @@ export function AnswerCard({
           )}
         >
           <HeartIcon filled={reacted} className={cn("h-[18px] w-[18px]", reacted && "animate-pop")} />
-          {count > 0 && <span>{count}</span>}
+          {count > 0 && <span className="tabular-nums">{count}</span>}
         </button>
 
         <ShareButton answerId={answer.id} />

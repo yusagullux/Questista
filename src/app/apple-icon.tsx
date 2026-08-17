@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-/* Generated Apple touch icon — Q mark on brand gradient, rounded square. */
+/* Generated Apple touch icon — stamp-red Q on paper, rounded square. */
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
@@ -16,9 +16,10 @@ export default function AppleIcon() {
           justifyContent: "center",
           fontSize: 120,
           fontWeight: 700,
-          color: "#fff",
-          background: "linear-gradient(135deg, #5b3df5, #f5a623)",
-          borderRadius: 44,
+          color: "#9c2b2b",
+          background: "#f5efe3",
+          border: "6px solid #9c2b2b",
+          borderRadius: 40,
         }}
       >
         Q
